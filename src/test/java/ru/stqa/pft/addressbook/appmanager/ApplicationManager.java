@@ -1,74 +1,44 @@
-package ru.stqa.pft.addressbook;
+package ru.stqa.pft.addressbook.appmanager;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import ru.stqa.pft.addressbook.model.ContactData;
 
 import java.util.concurrent.TimeUnit;
 
 import static org.testng.Assert.fail;
 
-public class TestBase {
-    protected WebDriver driver;
+public class ApplicationManager {
+
+    WebDriver driver;
+
+    private SessionHelper sessionHelper;
+    private NavigationHelper navigationHelper;
+    private GroupHelper groupHelper;
     private boolean acceptNextAlert = true;
     private StringBuffer verificationErrors = new StringBuffer();
 
-    @BeforeClass(alwaysRun = true)
-    public void setUp() throws Exception {
+    public void init() {
         driver = new ChromeDriver();
         driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
         driver.get("http://localhost/addressbook/group.php");
-        login("admin", "secret");
+        groupHelper = new GroupHelper(driver);
+        navigationHelper = new NavigationHelper(driver);
+        sessionHelper = new SessionHelper(driver);
+        sessionHelper.login("admin", "secret");
     }
 
-    private void login(String username, String password) {
-        driver.findElement(By.name("user")).click();
-        driver.findElement(By.name("user")).clear();
-        driver.findElement(By.name("user")).sendKeys(username);
-        driver.findElement(By.name("pass")).click();
-        driver.findElement(By.name("pass")).clear();
-        driver.findElement(By.name("pass")).sendKeys(password);
-        driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Password:'])[1]/following::input[2]")).click();
+
+
+    public void goToHomePage() {
+       driver.findElement(By.linkText("home page")).click();
     }
 
-    protected void returnToGroupPage() {
-        driver.findElement(By.linkText("group page")).click();
-    }
-
-    protected void submitGroupCreation() {
-        driver.findElement(By.name("submit")).click();
-    }
-
-    protected void fillGroupForm(GroupData groupData) {
-        driver.findElement(By.name("group_name")).click();
-        driver.findElement(By.name("group_name")).clear();
-        driver.findElement(By.name("group_name")).sendKeys(groupData.getName());
-        driver.findElement(By.name("group_header")).click();
-        driver.findElement(By.name("group_header")).clear();
-        driver.findElement(By.name("group_header")).sendKeys(groupData.getHeader());
-        driver.findElement(By.name("group_footer")).click();
-        driver.findElement(By.name("group_footer")).clear();
-        driver.findElement(By.name("group_footer")).sendKeys(groupData.getFooter());
-    }
-
-    protected void initGroupCreation() {
-        driver.findElement(By.name("new")).click();
-    }
-
-    protected void goToGroupPage() {
-        driver.findElement(By.linkText("groups")).click();
-    }
-
-    protected void goToHomePage() {
-        driver.findElement(By.linkText("home page")).click();
-    }
-
-    protected void submitContactCreation() {
+    public void submitContactCreation() {
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Notes:'])[1]/following::input[1]")).click();
     }
 
-    protected void fillContactForm(ContactData contactData) {
+    public void fillContactForm(ContactData contactData) {
         driver.findElement(By.name("firstname")).click();
         driver.findElement(By.name("firstname")).clear();
         driver.findElement(By.name("firstname")).sendKeys(contactData.getName());
@@ -84,12 +54,11 @@ public class TestBase {
         driver.findElement(By.name("email")).sendKeys(contactData.getEmail());
     }
 
-    protected void initContactCreation() {
+    public void initContactCreation() {
         driver.findElement(By.linkText("add new")).click();
     }
 
-    @AfterClass(alwaysRun = true)
-    public void tearDown() throws Exception {
+    public void stop() {
         driver.quit();
         String verificationErrorString = verificationErrors.toString();
         if (!"".equals(verificationErrorString)) {
@@ -130,11 +99,11 @@ public class TestBase {
         }
     }
 
-    protected void deleteSelectedGroups() {
-        driver.findElement(By.name("delete")).click();
+    public GroupHelper getGroupHelper() {
+        return groupHelper;
     }
 
-    protected void selectGroup() {
-        driver.findElement(By.name("selected[]")).click();
+    public NavigationHelper getNavigationHelper() {
+        return navigationHelper;
     }
 }
